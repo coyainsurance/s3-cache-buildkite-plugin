@@ -1,0 +1,36 @@
+#!/bin/bash
+set -euo pipefail
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# shellcheck source=lib/params.bash
+. "$DIR/../lib/params.bash"
+
+# shellcheck source=lib/settings.bash
+. "$DIR/../lib/settings.bash"
+
+mapfile -t paths < <(plugin_read_list DIRECTORIES)
+
+if [[ "${#paths[@]}" -gt 0 ]]; then
+  echo "--- Finding cache"
+  # Look for cache for this branch
+  S3_PATH="s3://${BUILDKITE_PLUGIN_S3_CACHE_BUCKET}/${BUILDKITE_PIPELINE_SLUG}/${BUILDKITE_BRANCH}/${FILENAME}.tar.gz"
+  if ! aws s3 ls "${S3_PATH}" | grep -q 'tar.gz'; then
+    echo "No cache found in ${S3_PATH}"
+    if [[ -n "${BUILDKITE_PULL_REQUEST_BASE_BRANCH:-}" ]]; then
+      S3_PATH="s3://${BUILDKITE_PLUGIN_S3_CACHE_BUCKET}/${BUILDKITE_PIPELINE_SLUG}/${BUILDKITE_PULL_REQUEST_BASE_BRANCH}/${FILENAME}.tar.gz"
+    fi
+  fi
+
+  if aws s3 ls "${S3_PATH}" | grep -q 'tar.gz'; then
+    echo "--- Downloading cache from ${BUILDKITE_PLUGIN_S3_CACHE_BUCKET}"
+    aws s3 cp \
+      "${S3_PATH}" \
+      "${CACHE_FILE}"
+
+    echo "--- Uncompressing cache with tar"
+    tar -xzf "${CACHE_FILE}"
+  else
+    echo "No cache found in ${S3_PATH}"
+  fi
+fi

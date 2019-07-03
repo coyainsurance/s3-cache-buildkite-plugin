@@ -1,0 +1,42 @@
+#!/bin/bash
+set -euo pipefail
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# shellcheck source=lib/params.bash
+. "$DIR/../lib/params.bash"
+# shellcheck source=lib/settings.bash
+. "$DIR/../lib/settings.bash"
+
+mapfile -t paths < <(plugin_read_list DIRECTORIES)
+
+if [ ${#paths[@]} -gt 0 ]; then
+  echo "--- Compressing cache with tar"
+  # Filter existing paths
+  shopt -s extglob
+  shopt -s nullglob
+  tarlist=()
+  for path in "${paths[@]}"; do
+    if [[ -e "$path" ]]; then
+      tarlist+=("$path")
+    fi
+  done
+
+  if [[ "${#tarlist[@]}" -gt 0 ]]; then
+    echo tar -zcf "${CACHE_FILE}" "${tarlist[@]}"
+    tar -zcf "${CACHE_FILE}" "${tarlist[@]}"
+
+    if [[ -e "${CACHE_FILE}" ]]; then
+      echo "--- Uploading cache to ${BUILDKITE_PLUGIN_S3_CACHE_BUCKET}"
+      aws s3 cp \
+        "${CACHE_FILE}" \
+        "s3://${BUILDKITE_PLUGIN_S3_CACHE_BUCKET}/${BUILDKITE_PIPELINE_SLUG}/${BUILDKITE_BRANCH}/${FILENAME}.tar.gz"
+    else
+      echo "File ${CACHE_FILE} missing, nothing to upload"
+    fi
+
+  else
+    echo "No files found for: "
+    echo "${paths[*]}"
+  fi
+fi

@@ -1,0 +1,28 @@
+steps:
+  - label: ":shell: Shellcheck"
+    plugins:
+      shellcheck#v1.1.2:
+        files:
+          - hooks/**
+          - lib/**
+
+  - label: ":bash: Tests"
+    plugins:
+      docker-compose#v3.0.3:
+        run: tests
+
+  - wait
+  - label: ":rocket: Release GitHub Version :github:"
+    branches: "master"
+    concurrency: 1
+    concurrency_group: "${BUILDKITE_PIPELINE_SLUG}-deploy"
+    env:
+      TOOL_VERSION: v1.0
+      GITHUB_RELEASE_REPOSITORY: ${BUILDKITE_ORGANIZATION_SLUG}/${BUILDKITE_PIPELINE_SLUG}
+    commands:
+      - |
+        curl -L \
+        https://github.com/buildkite/github-release/releases/download/$${TOOL_VERSION}/github-release-linux-amd64 \
+        --output "/root/.local/bin/github-release"
+      - chmod +x "/root/.local/bin/github-release"
+      - github-release "$(cat VERSION)"
