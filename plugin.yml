@@ -1,0 +1,23 @@
+name: s3-cache
+description: Upload and download artifacts
+author: https://github.com/buildkite
+requirements: [
+  "tar",
+  "awscli"
+]
+configuration:
+  properties:
+    directories:
+      type: [string, array]
+    bucket:
+      type: string
+    unique:
+      type: string
+    file:
+      type: string
+    load_settings:
+      type: string
+  required:
+    - directories
+    - bucket
+  additionalProperties: false
