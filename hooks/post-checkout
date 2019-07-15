@@ -19,6 +19,8 @@ if [[ "${#paths[@]}" -gt 0 ]]; then
     echo "No cache found in ${S3_PATH}"
     if [[ -n "${BUILDKITE_PULL_REQUEST_BASE_BRANCH:-}" ]]; then
       S3_PATH="s3://${BUILDKITE_PLUGIN_S3_CACHE_BUCKET}/${BUILDKITE_PIPELINE_SLUG}/${BUILDKITE_PULL_REQUEST_BASE_BRANCH}/${FILENAME}.tar.gz"
+    else
+      S3_PATH="s3://${BUILDKITE_PLUGIN_S3_CACHE_BUCKET}/${BUILDKITE_PIPELINE_SLUG}/${BUILDKITE_PIPELINE_DEFAULT_BRANCH}/${FILENAME}.tar.gz"
     fi
   fi
 
