@@ -11,6 +11,11 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mapfile -t paths < <(plugin_read_list DIRECTORIES)
 
 if [ ${#paths[@]} -gt 0 ]; then
+
+  if [[ -z "${BUILDKITE_PLUGIN_S3_CACHE_HOOKS:-}" && -f "$BUILDKITE_BUILD_CHECKOUT_PATH/.buildkite/hooks/pre-cache" ]]; then
+    . "$BUILDKITE_BUILD_CHECKOUT_PATH/.buildkite/hooks/pre-cache"
+  fi
+
   echo "--- :compression: Compressing cache with tar"
   # Filter existing paths
   shopt -s extglob

@@ -28,5 +28,14 @@ Target file to zip the cache. Defaults to a hashed name in `/tmp`
 ### `load_settings`
 If non-empty, will load s3 optimized configuration
 
+### Hooks
+Hooks can be disabled by setting `BUILDKITE_PLUGIN_S3_CACHE_HOOKS` to any value
+
+#### pre-cache
+Loads pre-cache hooks from `${BUILDKITE_BUILD_CHECKOUT_PATH}/.buildkite/hooks/pre-cache`
+
+#### post-cache
+Loads post-cache hooks from `${BUILDKITE_BUILD_CHECKOUT_PATH}/.buildkite/hooks/post-cache`
+
 ## License
 MIT (see [LICENSE](LICENSE))
