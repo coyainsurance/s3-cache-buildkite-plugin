@@ -34,7 +34,8 @@ if [[ "${#paths[@]}" -gt 0 ]]; then
     tar -xzf "${CACHE_FILE}"
 
     if [[ -z "${BUILDKITE_PLUGIN_S3_CACHE_HOOKS:-}" && -f "${BUILDKITE_BUILD_CHECKOUT_PATH}/.buildkite/hooks/post-cache" ]]; then
-      . "${BUILDKITE_BUILD_CHECKOUT_PATH}/.buildkite/hooks/post-cache"
+      echo "Running post-cache hook"
+      "${BUILDKITE_BUILD_CHECKOUT_PATH}/.buildkite/hooks/post-cache"
     fi
   else
     echo "No cache found in ${S3_PATH}"

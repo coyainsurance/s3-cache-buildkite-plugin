@@ -13,6 +13,7 @@ load '/usr/local/lib/bats/load.bash'
   export BUILDKITE_PLUGIN_S3_CACHE_BUCKET="test"
   export BUILDKITE_PLUGIN_S3_CACHE_DIRECTORIES="./cache"
   export BUILDKITE_LABEL="This test build"
+  export BUILDKITE_BUILD_CHECKOUT_PATH="$PWD"
 
   stub aws \
     "s3 ls s3://test/test/master/48ff2c8af2cb1b7b760080c23e4e1c92be6ee3cefef0ad8866d1d45b4485b195.tar.gz : echo 48ff2c8af2cb1b7b760080c23e4e1c92be6ee3cefef0ad8866d1d45b4485b195.tar.gz" \
@@ -38,6 +39,7 @@ load '/usr/local/lib/bats/load.bash'
   export BUILDKITE_PLUGIN_S3_CACHE_DIRECTORIES="tests/"
   export BUILDKITE_LABEL="This test build"
   export BUILDKITE_PLUGIN_S3_CACHE_FILE="/tmp/cache.tar.gz"
+  export BUILDKITE_BUILD_CHECKOUT_PATH="$PWD"
 
   stub tar \
     "-zcf : touch /tmp/cache.tar.gz"
